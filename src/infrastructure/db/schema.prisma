@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = "mongodb+srv://santoshpatil2526:patilsp9696@cluster0.hpizeoq.mongodb.net/jira-clone"
+}
+
+model test {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+}
+
+
+model User {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  image          String?
+  color          String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  issueReporters Issue[]   @relation("issue_reporter")
+  issueAssignees Issue[]   @relation("issue_assignee")
+  issueComments  Comment[]
+}
+
+model Project {
+ id String @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  categories  Category[]
+  image       String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Category {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String    @db.ObjectId
+  type      String    @default("TODO")
+  name      String
+  order     Int
+  issues    Issue[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+
+model Issue {
+ id String @id @default(auto()) @map("_id") @db.ObjectId
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String @db.ObjectId
+  name        String
+  description String?
+  reporter    User      @relation("issue_reporter", fields: [reporterId], references: [id])
+  reporterId  String    @db.ObjectId
+  asignee     User      @relation("issue_assignee", fields: [asigneeId], references: [id])
+  asigneeId   String    @db.ObjectId
+  comments    Comment[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  priority    Priority  @relation(fields: [priorityId], references: [id])
+  priorityId  String    @db.ObjectId
+}
+
+model Comment {
+ id String @id @default(auto()) @map("_id") @db.ObjectId
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issueId   String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Priority {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  order     Int
+  name      String
+  issues    Issue[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
